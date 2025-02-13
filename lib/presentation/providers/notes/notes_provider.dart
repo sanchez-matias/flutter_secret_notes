@@ -1,0 +1,110 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_secret_notes/config/plugins/images_plugin.dart';
+import 'package:flutter_secret_notes/domain/domain.dart';
+import 'package:flutter_secret_notes/presentation/providers/repositories/repositories_providers.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part 'notes_provider.g.dart';
+
+@Riverpod(keepAlive: true)
+class Notes extends _$Notes {
+  int _page = 1;
+  bool _isLoading = false;
+
+  @override
+  List<Note> build() {
+    return []; 
+  }
+
+  void loadCurrentPage() async {
+    if (_isLoading) return;
+    _isLoading = true;
+
+    try {
+      final notes = await ref.read(storageRepositoryProvider).getNotes(page: _page);
+      state = notes;
+    } catch (e) {
+      // print(e);
+    }
+
+    _isLoading = false;
+  }
+
+  void loadNextPage() async {
+    if (_isLoading) return;
+    _page++;
+    loadCurrentPage();
+  }
+
+  Future<void> addNewNote(Note note) async {
+    await ref.read(storageRepositoryProvider).createNote(note);
+    loadCurrentPage();
+  }
+
+  Future<void> deleteNote(List<int> ids) async {
+    await ref.read(storageRepositoryProvider).deleteNotesById(ids);
+    loadCurrentPage();
+  }
+
+  Future<void> editNote(Note newNoteContent) async {
+    await ref.read(storageRepositoryProvider)
+      .updateNoteById(newNoteContent);
+    
+    loadCurrentPage();
+  }
+
+  Future<void> pickFromCamera(int noteId) async {
+    final path = await ImagesPlugin.pickImageFromCamera();
+    final imageId = await ref.read(storageRepositoryProvider).addImage(path);
+    await ref.read(storageRepositoryProvider).linkImage(noteId: noteId, imageId: imageId);
+    ref.invalidate(getNoteProvider);
+  }
+
+  Future<void> pickFromGallery(int noteId) async {
+    final path = await ImagesPlugin.pickImageFromGallery();
+    final imageId = await ref.read(storageRepositoryProvider).addImage(path);
+    await ref.read(storageRepositoryProvider).linkImage(noteId: noteId, imageId: imageId);
+    ref.invalidate(getNoteProvider);
+  }
+
+  Future<void> deleteImage(CustomImage image) async {
+    await ImagesPlugin.deleteImage(image.path);
+    await ref.read(storageRepositoryProvider).removeImage(image.id);
+    ref.invalidate(getNoteProvider);
+  }
+ }
+
+// TODO: ver si este estado se usa o se elimina
+class NotesState {
+  final int page;
+  final bool isLoading;
+  final String message;
+  final List<Note> notes;
+
+  NotesState({
+    this.page = 0,
+    this.isLoading = false,
+    this.message = '',
+    this.notes = const [],
+  });
+
+  NotesState copyWith({
+    int? page,
+    bool? isLoading,
+    String? message,
+    List<Note>? notes,
+  }) => NotesState(
+        page: page ?? this.page,
+        isLoading: isLoading ?? this.isLoading,
+        message: message ?? this.message,
+        notes: notes ?? this.notes,
+      );
+}
+
+@riverpod
+FutureOr<Note?> getNote(Ref ref, int id) async {
+  if (id <= 0) return null;
+
+  final note = await ref.read(storageRepositoryProvider).getNoteById(id);
+  return note;
+}
