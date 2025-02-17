@@ -36,9 +36,10 @@ class Notes extends _$Notes {
     loadCurrentPage();
   }
 
-  Future<void> addNewNote(Note note) async {
-    await ref.read(storageRepositoryProvider).createNote(note);
+  Future<int> addNewNote(Note note) async {
+    final id = await ref.read(storageRepositoryProvider).createNote(note);
     loadCurrentPage();
+    return id;
   }
 
   Future<void> deleteNote(List<int> ids) async {

@@ -12,6 +12,7 @@ class LocalDbDatasourceImpl extends LocalDbDatasource {
   final String notesTableName = 'Notes';
   final String imagesTableName = 'Images';
   final String imagesMapTableName = 'ImagesMap';
+  final String lastVisitedTableName = 'LastVisited';
 
   LocalDbDatasourceImpl() {
     _db = openDbInstance();
@@ -50,6 +51,12 @@ class LocalDbDatasourceImpl extends LocalDbDatasource {
           NoteID INTEGER)
         ''');
 
+        db.execute('''
+        CREATE TABLE $lastVisitedTableName (
+          EntryID INTEGER PRIMARY KEY AUTOINCREMENT,
+          NoteID INTEGER)
+        ''');
+
         // Insert an Example Note
         db.rawInsert('''
         INSERT INTO $notesTableName (Content, Title)
@@ -66,15 +73,19 @@ class LocalDbDatasourceImpl extends LocalDbDatasource {
   //* NOTES
 
   @override
-  Future<void> createNote(Note note) async {
+  Future<int> createNote(Note note) async {
     final db = await _db;
 
-    await db.transaction(
+    final id = await db.transaction<int>(
       (txn) async => txn.rawInsert('''
         INSERT INTO $notesTableName(Content, Title)
         VALUES('${note.content}', '${note.title}');
         '''),
-        ).then((value) => log('INSERTED NOTE WITH ID: $value'));
+        );
+
+    log('NOTE CREATED WITH ID: $id');
+
+    return id;
   }
 
   @override
@@ -155,6 +166,45 @@ class LocalDbDatasourceImpl extends LocalDbDatasource {
     return databaseQuery.map((e) => NoteModel.fromJson(e)).toList();
   }
 
+  //* LAST VISITED NOTES
+
+  @override
+  Future<List<Note>> getLastVisitedNotes() async {
+    final db = await _db;
+
+    final query = await db.rawQuery('''
+    SELECT * FROM $notesTableName
+    WHERE NoteID IN (
+      SELECT NoteID FROM $lastVisitedTableName
+      ORDER BY EntryID DESC
+    )
+    ''');
+
+    log('GOT LAST VISITED NOTES: $query');
+
+    return query.map((e) => NoteModel.fromJson(e)).toList();
+  }
+
+  @override
+  Future<void> deleteLastVisitedNote(int id) async {
+    final db = await _db;
+
+    await db.rawDelete('''
+    DELETE FROM $lastVisitedTableName
+    WHERE NoteID = $id
+    ''').then((value) => log('REMOVED $value ITEMS FROM $lastVisitedTableName'));
+  }
+  
+  @override
+  Future<void> insertLastVisitedNotes(int id) async {
+    final db = await _db;
+
+    await db.rawInsert('''
+    INSERT INTO $lastVisitedTableName(NoteID)
+    VALUES($id)
+    ''').then((value) => log('INSERTED NEW ROW ON $lastVisitedTableName WITH ID $value'));
+  }
+
   //* IMAGES
 
   @override
@@ -214,5 +264,7 @@ class LocalDbDatasourceImpl extends LocalDbDatasource {
       ''')
     );
   }
+  
+  
   
 }

@@ -23,6 +23,7 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
     // Initialize providers
     ref.read(permissionsProvider.notifier).checkPermissions();
     ref.read(notesProvider.notifier).loadCurrentPage();
+    ref.read(lastVisitedNotesProvider.notifier).getLastVisitedNotes();
   }
 
   @override

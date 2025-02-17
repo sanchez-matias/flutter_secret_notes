@@ -86,7 +86,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         children: const [
           _NotesView(),
 
-          _SearchView()
+          Align(
+            alignment: Alignment.center,
+            child: _SearchView(),
+          ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -146,6 +149,11 @@ class _NotesView extends ConsumerWidget {
 
             context.push('/home/note/${note.id}');
             ref.read(selectedNotesProvider.notifier).removeAll();
+            
+            // Update the last visited notes when opened
+            if (note.id > 0) {
+              ref.read(lastVisitedNotesProvider.notifier).insertNote(note.id);
+            }
           },
           child: ListItem(
             note: note,
@@ -165,40 +173,61 @@ class _SearchView extends ConsumerWidget {
     final lastVisited = ref.watch(lastVisitedNotesProvider);
     final size = MediaQuery.sizeOf(context);
 
-    return Center(
-      child: Column(
-        children: [
-          const SizedBox(height: 20),
-          GestureDetector(
-            onTap: () {
-              showSearch(
-                context: context,
-                delegate: NoteSearchDelegate(),
-              );
-            },
-            child: Container(
-              padding: const EdgeInsets.only(left: 20),
-              height: 60,
-              width: size.width * 0.9,
-              decoration: BoxDecoration(
-                  color: Colors.transparent,
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all()),
-              child: const Row(
-                children: [
-                  Icon(Icons.search),
-                  SizedBox(width: 15),
-                  Text('Type what you\'re looking for!')
-                ],
-              ),
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+
+        //* Search Bar
+        GestureDetector(
+          onTap: () {
+            showSearch(
+              context: context,
+              delegate: NoteSearchDelegate(),
+            );
+          },
+          child: Container(
+            padding: const EdgeInsets.only(left: 20),
+            height: 60,
+            width: size.width * 0.9,
+            decoration: BoxDecoration(
+                color: Colors.transparent,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all()),
+            child: const Row(
+              children: [
+                Icon(Icons.search),
+                SizedBox(width: 15),
+                Text('Type what you\'re looking for!')
+              ],
             ),
           ),
-          const SizedBox(height: 50),
-          const Text('Recently Visited Notes'),
-          ...List.generate(lastVisited.length,
-              (index) => _LastVisitedListItem(lastVisited[index])),
-        ],
-      ),
+        ),
+
+        const SizedBox(height: 20),
+
+        //* Last Visited Notes
+
+        const Padding(
+          padding: EdgeInsets.all(20),
+          child: Row(
+            children: [
+              Icon(Icons.history),
+              SizedBox(width: 10),
+              Text('Recently Opened'),
+            ],
+          ),
+        ),
+
+        ...List.generate(
+          lastVisited.length,
+          (index) => Padding(
+            padding: const EdgeInsets.all(5),
+            child: _LastVisitedListItem(
+              lastVisited[index],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -210,16 +239,29 @@ class _LastVisitedListItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    const radius = 15.0;
+
     return Padding(
-      padding: const EdgeInsets.all(5),
-      child: ListTile(
-        dense: true,
-        title: Text(note.title),
-        subtitle: Text(note.content, maxLines: 2),
-        onTap: () {
-          context.push('/home/note/${note.id}');
-        },
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      child: Container(
+        clipBehavior: Clip.antiAlias,
+        decoration: BoxDecoration(
+          color: Colors.grey.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(radius),
+        ),
+        child: ListTile(
+          dense: true,
+          title: Text(note.title, style: const TextStyle(fontWeight: FontWeight.bold)),
+          subtitle: Text(note.content, maxLines: 3),
+          onTap: () {
+            context.push('/home/note/${note.id}');
+
+            if (note.id > 0) {
+              ref.read(lastVisitedNotesProvider.notifier).insertNote(note.id);
+            }
+          },
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(radius)),
+        ),
       ),
     );
   }

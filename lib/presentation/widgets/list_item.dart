@@ -47,7 +47,7 @@ class ListItem extends StatelessWidget {
                   ),
 
 
-                Text(note.content),
+                Text(note.content, maxLines: 10, overflow: TextOverflow.ellipsis),
               ],
             ),
           ),

@@ -13,7 +13,7 @@ class LocalDbRepositoryImpl extends LocalDbRepository {
   //* NOTES
 
   @override
-  Future<void> createNote(Note note) {
+  Future<int> createNote(Note note) {
     return _datasource.createNote(note);
   }
 
@@ -42,6 +42,23 @@ class LocalDbRepositoryImpl extends LocalDbRepository {
     return _datasource.searchNote(query);
   }
 
+  //* LAST VISITED NOTES
+
+  @override
+  Future<List<Note>> getLastVisitedNotes() {
+    return _datasource.getLastVisitedNotes();
+  }
+  
+  @override
+  Future<void> insertLastVisitedNotes(int id) {
+    return _datasource.insertLastVisitedNotes(id);
+  }
+  
+  @override
+  Future<void> deleteLastVisitedNote(int id) {
+    return _datasource.deleteLastVisitedNote(id);
+  }
+
   //* IMAGES
   
   @override
@@ -63,5 +80,6 @@ class LocalDbRepositoryImpl extends LocalDbRepository {
   Future<void> linkImage({required int noteId, required int imageId}) {
     return _datasource.linkImage(noteId: noteId, imageId: imageId);
   }
+  
   
 }

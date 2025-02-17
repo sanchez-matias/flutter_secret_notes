@@ -95,7 +95,7 @@ class _NoteFormState extends ConsumerState<_NoteForm> {
     final size = MediaQuery.sizeOf(context);
 
     return PopScope(
-      onPopInvokedWithResult: (didPop, result) {
+      onPopInvokedWithResult: (didPop, result) async {
         final editedNote = Note(
           id: widget.id,
           title: titleController.text,
@@ -111,9 +111,12 @@ class _NoteFormState extends ConsumerState<_NoteForm> {
 
           // print('Se edito una nota');
         } else {
-          ref.read(notesProvider.notifier).addNewNote(editedNote);
-          // print('Se agregó una nueva nota');
+          final id = await ref.read(notesProvider.notifier).addNewNote(editedNote);
+
+          // Update the last visited notes when created
+          ref.read(lastVisitedNotesProvider.notifier).insertNote(id);
         }
+
 
       },
       child: SingleChildScrollView(

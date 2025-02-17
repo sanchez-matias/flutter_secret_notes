@@ -3,7 +3,7 @@ import 'package:flutter_secret_notes/domain/entities/note.dart';
 
 abstract class LocalDbDatasource {
   //* NOTES
-  Future<void> createNote(Note note);
+  Future<int> createNote(Note note);
 
   Future<Note> getNoteById(int id);
 
@@ -15,6 +15,13 @@ abstract class LocalDbDatasource {
 
   Future<List<Note>> searchNote(String query);
 
+  //* LAST VISITED NOTES
+
+  Future<List<Note>> getLastVisitedNotes();
+
+  Future<void> insertLastVisitedNotes(int id);
+
+  Future<void> deleteLastVisitedNote(int id);
 
   //* IMAGES
   Future<int> addImage(String path);
