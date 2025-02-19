@@ -14,16 +14,17 @@ class ListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final size = MediaQuery.of(context).size;
 
     return Stack(
       children: [
 
         //* NOTE CONTAINER
         Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 15),
           child: Container(
             width: double.infinity,
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(15),
               border: Border.all(
@@ -41,8 +42,13 @@ class ListItem extends StatelessWidget {
                     padding: const EdgeInsets.only(bottom: 10),
                     child: Text(
                       note.title,
-                      style: const TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.w500),
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: isSelected
+                          ? colors.primary
+                          : Colors.black,
+                      ),
                     ),
                   ),
 
@@ -55,8 +61,8 @@ class ListItem extends StatelessWidget {
 
         //* SELECTED CHECK
         Positioned(
-          top: 15,
-          right: 15,
+          top: size.height * 0.015,
+          right: size.width * 0.05,
           child: isSelected
             ? Icon(Icons.check_circle, color: colors.primary)
             : const SizedBox(),

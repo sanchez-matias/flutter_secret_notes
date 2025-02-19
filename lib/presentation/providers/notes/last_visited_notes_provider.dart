@@ -35,8 +35,14 @@ class LastVisitedNotes extends _$LastVisitedNotes {
       return;
     }
 
-    await ref.read(storageRepositoryProvider).deleteLastVisitedNote(state.last.id);
+    await ref.read(storageRepositoryProvider).deleteLastVisitedNote([state.last.id]);
     await ref.read(storageRepositoryProvider).insertLastVisitedNotes(id);
+    getLastVisitedNotes();
+  }
+
+  Future<void> deleteNote(List<int> ids) async {
+    await ref.read(storageRepositoryProvider).deleteLastVisitedNote(ids);
+
     getLastVisitedNotes();
   }
 

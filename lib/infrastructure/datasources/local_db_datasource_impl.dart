@@ -186,13 +186,18 @@ class LocalDbDatasourceImpl extends LocalDbDatasource {
   }
 
   @override
-  Future<void> deleteLastVisitedNote(int id) async {
+  Future<void> deleteLastVisitedNote(List<int> ids) async {
+    if (ids.isEmpty) return;
+
     final db = await _db;
 
+    final placeholders = List.filled(ids.length, '?').join(',');
+
     await db.rawDelete('''
-    DELETE FROM $lastVisitedTableName
-    WHERE NoteID = $id
-    ''').then((value) => log('REMOVED $value ITEMS FROM $lastVisitedTableName'));
+    DELETE FROM $lastVisitedTableName WHERE NoteID IN ($placeholders)
+    ''',
+    ids,
+    ).then((value) => log('REMOVED $value ROWS FROM $lastVisitedTableName'));
   }
   
   @override

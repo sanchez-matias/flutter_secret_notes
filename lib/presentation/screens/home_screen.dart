@@ -46,7 +46,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   void _onDestinationSelected(int index) {
     controller.animateToPage(
       index,
-      duration: const Duration(milliseconds: 100),
+      duration: const Duration(milliseconds: 159),
       curve: Curves.easeInOut,
     );
   }
@@ -73,8 +73,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
               : IconButton(
                   onPressed: () {
-                    ref.read(notesProvider.notifier).deleteNote(selectedNotes.toList());
-                    ref.read(selectedNotesProvider.notifier).removeAll();
+                    showDialog(
+                      context: context,
+                      builder: (context) => AreYouSureDialog(
+                        callback: () {
+                          ref.read(notesProvider.notifier).deleteNote(selectedNotes.toList());
+                          ref.read(lastVisitedNotesProvider.notifier).deleteNote(selectedNotes.toList());
+                          ref.read(selectedNotesProvider.notifier).removeAll();
+                        },
+                      ),
+                    );
                   },
                   icon: const Icon(Icons.delete_outline, color: Colors.white),
                 ),
@@ -207,16 +215,17 @@ class _SearchView extends ConsumerWidget {
 
         //* Last Visited Notes
 
-        const Padding(
-          padding: EdgeInsets.all(20),
-          child: Row(
-            children: [
-              Icon(Icons.history),
-              SizedBox(width: 10),
-              Text('Recently Opened'),
-            ],
+        if (lastVisited.isNotEmpty)
+          const Padding(
+            padding: EdgeInsets.all(20),
+            child: Row(
+              children: [
+                Icon(Icons.history),
+                SizedBox(width: 10),
+                Text('Recently Opened'),
+              ],
+            ),
           ),
-        ),
 
         ...List.generate(
           lastVisited.length,

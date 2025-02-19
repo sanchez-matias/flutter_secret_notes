@@ -21,7 +21,7 @@ abstract class LocalDbDatasource {
 
   Future<void> insertLastVisitedNotes(int id);
 
-  Future<void> deleteLastVisitedNote(int id);
+  Future<void> deleteLastVisitedNote(List<int> ids);
 
   //* IMAGES
   Future<int> addImage(String path);

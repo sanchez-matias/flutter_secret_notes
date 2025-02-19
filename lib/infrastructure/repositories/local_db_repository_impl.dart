@@ -55,8 +55,8 @@ class LocalDbRepositoryImpl extends LocalDbRepository {
   }
   
   @override
-  Future<void> deleteLastVisitedNote(int id) {
-    return _datasource.deleteLastVisitedNote(id);
+  Future<void> deleteLastVisitedNote(List<int> ids) {
+    return _datasource.deleteLastVisitedNote(ids);
   }
 
   //* IMAGES
