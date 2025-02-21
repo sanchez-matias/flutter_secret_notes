@@ -56,6 +56,8 @@ class Notes extends _$Notes {
 
   Future<void> pickFromCamera(int noteId) async {
     final path = await ImagesPlugin.pickImageFromCamera();
+    if (path.isEmpty) return;
+
     final imageId = await ref.read(storageRepositoryProvider).addImage(path);
     await ref.read(storageRepositoryProvider).linkImage(noteId: noteId, imageId: imageId);
     ref.invalidate(getNoteProvider);
@@ -63,6 +65,8 @@ class Notes extends _$Notes {
 
   Future<void> pickFromGallery(int noteId) async {
     final path = await ImagesPlugin.pickImageFromGallery();
+    if (path.isEmpty) return;
+
     final imageId = await ref.read(storageRepositoryProvider).addImage(path);
     await ref.read(storageRepositoryProvider).linkImage(noteId: noteId, imageId: imageId);
     ref.invalidate(getNoteProvider);
@@ -74,33 +78,6 @@ class Notes extends _$Notes {
     ref.invalidate(getNoteProvider);
   }
  }
-
-// TODO: ver si este estado se usa o se elimina
-class NotesState {
-  final int page;
-  final bool isLoading;
-  final String message;
-  final List<Note> notes;
-
-  NotesState({
-    this.page = 0,
-    this.isLoading = false,
-    this.message = '',
-    this.notes = const [],
-  });
-
-  NotesState copyWith({
-    int? page,
-    bool? isLoading,
-    String? message,
-    List<Note>? notes,
-  }) => NotesState(
-        page: page ?? this.page,
-        isLoading: isLoading ?? this.isLoading,
-        message: message ?? this.message,
-        notes: notes ?? this.notes,
-      );
-}
 
 @riverpod
 FutureOr<Note?> getNote(Ref ref, int id) async {

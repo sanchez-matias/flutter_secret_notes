@@ -21,6 +21,7 @@ class NoteScreen extends ConsumerWidget {
         actions: [
           IconButton(
             onPressed: () async {
+              if (noteId.isNegative) return;
               await ref.read(notesProvider.notifier).pickFromCamera(noteId);
             },
             icon: const Icon(Icons.add_a_photo_outlined),
@@ -28,6 +29,7 @@ class NoteScreen extends ConsumerWidget {
 
           IconButton(
             onPressed: () async {
+              if (noteId.isNegative) return;
               await ref.read(notesProvider.notifier).pickFromGallery(noteId);
             },
             icon: const Icon(Icons.add_photo_alternate_outlined),
