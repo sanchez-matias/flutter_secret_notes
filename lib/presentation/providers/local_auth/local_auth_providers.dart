@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secret_notes/config/plugins/local_auth.dart';
+import 'package:flutter_secret_notes/config/plugins/secure_storage_plugin.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'local_auth_providers.g.dart';
@@ -7,6 +8,11 @@ part 'local_auth_providers.g.dart';
 @riverpod
 FutureOr<bool> canCheckBiometrics(Ref ref) async {
   return await LocalAuthPlugin.canCheckBiometrics();
+}
+
+@riverpod
+FutureOr<bool> isPasswordRegistered(Ref ref) async {
+  return await SecureStoragePlugin.isPasswordRegistered();
 }
 
 enum LocalAuthStatus { authenticated, notAuthenticated, loading }
@@ -49,7 +55,7 @@ class LocalAuth extends _$LocalAuth {
     return LocalAuthState();
   }
 
-  Future<(bool, String)> authenticateUser() async {
+  Future<(bool, String)> authenticateWithBiometrics() async {
     state = state.copyWith(status: LocalAuthStatus.loading);
 
     final (didAuthenticate, message) = await LocalAuthPlugin.authenticate();
@@ -63,6 +69,38 @@ class LocalAuth extends _$LocalAuth {
     );
 
     return (didAuthenticate, message);
+  }
+
+  Future<(bool, String)> authenticateWithPassword(String password) async {
+    state = state.copyWith(status: LocalAuthStatus.loading);
+
+    final isPasswordRegistered = await SecureStoragePlugin.isPasswordRegistered();
     
+    if (!isPasswordRegistered) {
+      await SecureStoragePlugin.setPassword(password);
+
+      state = state.copyWith(
+        didAuthenticate: true,
+        status: LocalAuthStatus.authenticated,
+        message: 'Password created'
+      );
+
+      return (true, 'Password Created');
+    }
+
+    final savedPassword = await SecureStoragePlugin.getPassword();
+
+    if (password == savedPassword) {
+      state = state.copyWith(
+        didAuthenticate: true,
+        status: LocalAuthStatus.authenticated,
+        message: 'Success'
+      );
+
+      return (true, 'Success');
+    } else {
+      state = state.copyWith(message: 'Incorrect Password');
+      return (false, 'Incorrect Password');
+    }
   }
 }

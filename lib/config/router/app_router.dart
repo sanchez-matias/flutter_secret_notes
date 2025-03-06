@@ -17,7 +17,8 @@ GoRouter appRouter(Ref ref) {
     ..onDispose(localAuthNotifier.dispose)
     ..listen(
       localAuthProvider,
-      (_, next) {
+      (previous, next) {
+        if (previous == next) return;
         localAuthNotifier.value = next.status;
       },
     );
