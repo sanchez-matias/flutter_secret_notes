@@ -21,7 +21,9 @@ class LocalAuthPlugin {
   }
 
   static Future<bool> canCheckBiometrics() async {
-    return await auth.canCheckBiometrics;
+    final List<BiometricType> availableBiometrics = await auth.getAvailableBiometrics();
+
+    return availableBiometrics.isNotEmpty;
   }
 
   static Future<(bool, String)> authenticate() async {
