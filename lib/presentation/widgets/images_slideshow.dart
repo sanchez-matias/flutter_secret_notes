@@ -140,36 +140,56 @@ class _ListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
 
-    return Stack(
-      children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(10),
-            child: Image.file(
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(15),
+      child: Stack(
+        children: [
+            Image.file(
               File(path),
               fit: BoxFit.cover,
               height: 100,
               width: 100,
             ),
-          ),
-        
-        if (isSelected)
-          Positioned(
-            right: 0,
-            bottom: 0,
-            child: Icon(
-              Icons.check_circle_rounded,
-              color: colors.primary,
-              size: 33,
-              shadows: const [
-                Shadow(
-                  color: Colors.white,
-                  offset: Offset(1, 1),
-                  blurRadius: 5
-                )
-              ],
+      
+          if (isSelected)
+            Positioned.fill(
+              child: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.bottomCenter,
+                    end: Alignment.topCenter,
+                    stops: [
+                      0.1,
+                      0.9,
+                    ],
+                    colors: [
+                      Colors.black,
+                      Colors.transparent,
+                    ],
+                  ),
+                ),
+              ),
             ),
-          ),
-      ],
+          
+          if (isSelected)
+            Positioned.fill(
+              child: Center(
+                child: Icon(
+                  Icons.check,
+                  color: Colors.white,
+                  size: 35,
+                  shadows: [
+                    Shadow(
+                      color: colors.primary,
+                      offset: const Offset(1, 1),
+                      blurRadius: 5
+                    )
+                  ],
+                ),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }
