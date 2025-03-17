@@ -56,7 +56,7 @@ class LocalAuth extends _$LocalAuth {
   }
 
   Future<(bool, String)> authenticateWithBiometrics() async {
-    state = state.copyWith(status: LocalAuthStatus.loading);
+    // state = state.copyWith(status: LocalAuthStatus.loading);
 
     final (didAuthenticate, message) = await LocalAuthPlugin.authenticate();
 
@@ -102,5 +102,15 @@ class LocalAuth extends _$LocalAuth {
       state = state.copyWith(message: 'Incorrect Password');
       return (false, 'Incorrect Password');
     }
+  }
+
+  Future<void> setPassword(String newPassword) async {
+    await SecureStoragePlugin.setPassword(newPassword);
+
+    state = state.copyWith(
+        didAuthenticate: false,
+        status: LocalAuthStatus.notAuthenticated,
+        message: 'Logged out for password changing'
+      );
   }
 }
