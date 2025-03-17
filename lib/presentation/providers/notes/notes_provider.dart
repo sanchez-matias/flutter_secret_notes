@@ -77,7 +77,13 @@ class Notes extends _$Notes {
     await ref.read(storageRepositoryProvider).removeImage(image.id);
     ref.invalidate(getNoteProvider);
   }
- }
+
+  Future<void> deleteImages(List<CustomImage> images) async {
+    await ImagesPlugin.deleteImages(images);
+    await ref.read(storageRepositoryProvider).removeImages(images);
+    ref.invalidate(getNoteProvider);
+  }
+}
 
 @riverpod
 FutureOr<Note?> getNote(Ref ref, int id) async {

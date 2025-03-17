@@ -270,6 +270,24 @@ class LocalDbDatasourceImpl extends LocalDbDatasource {
     );
   }
   
+  @override
+  Future<void> removeImages(List<CustomImage> images) async {
+    final db = await _db;
+
+    final ids = images.map((e) => e.id).toList();
+    final placeholders = List.filled(ids.length, '?').join(',');
+
+    await db.rawDelete(
+      'DELETE FROM $imagesMapTableName WHERE ImageID IN ($placeholders)',
+      ids,
+    ).then((value) => log('REMOVED $value ROWS FROM $imagesMapTableName'));
+
+    await db.rawDelete(
+      'DELETE FROM $imagesTableName WHERE ImageID IN ($placeholders);',
+      ids,
+    ).then((value) => log('REMOVED $value ROWS FROM $imagesTableName'));
+  }
+  
   
   
 }

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter_secret_notes/domain/domain.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_secret_notes/config/plugins/path_builder.dart';
 
@@ -37,6 +38,25 @@ class ImagesPlugin {
 
     if (await file.exists()) {
       file.delete();
+    }
+  }
+
+  static Future<void> deleteImages(List<CustomImage> images) async {
+    final imagePaths = images.map((e) => e.path).toList();
+
+    for (String path in imagePaths) {
+      final file = File(path);
+
+      if (await file.exists()) {
+        try {
+          await file.delete();
+          print('Image Correctly Deleted: $path');
+        } catch (e) {
+          print('Error deleting image $path: $e');
+        }
+      } else {
+        print('The file does not exist: $path');
+      }
     }
   }
 }

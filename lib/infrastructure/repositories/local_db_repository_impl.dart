@@ -81,5 +81,10 @@ class LocalDbRepositoryImpl extends LocalDbRepository {
     return _datasource.linkImage(noteId: noteId, imageId: imageId);
   }
   
+  @override
+  Future<void> removeImages(List<CustomImage> images) {
+    return _datasource.removeImages(images);
+  }
+  
   
 }

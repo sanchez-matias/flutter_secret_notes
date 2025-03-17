@@ -32,4 +32,6 @@ abstract class LocalDbRepository {
   Future<List<CustomImage>> getImagesById(int noteId);
 
   Future<void> linkImage({required int noteId, required int imageId});
+  
+  Future<void> removeImages(List<CustomImage> images);
 }
