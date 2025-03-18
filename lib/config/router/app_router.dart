@@ -11,7 +11,8 @@ part 'app_router.g.dart';
 @riverpod
 GoRouter appRouter(Ref ref) {
 
-  final localAuthNotifier = ValueNotifier<LocalAuthStatus>(LocalAuthStatus.loading);
+  final localAuthNotifier = ValueNotifier<LocalAuthStatus>(LocalAuthStatus.notAuthenticated);
+  final lastRoute = ValueNotifier<String>('/home');
 
   ref
     ..onDispose(localAuthNotifier.dispose)
@@ -20,8 +21,7 @@ GoRouter appRouter(Ref ref) {
       (previous, next) {
         if (previous == next) return;
         localAuthNotifier.value = next.status;
-      },
-    );
+    });
 
   return GoRouter(
     initialLocation: '/locked',
@@ -58,37 +58,22 @@ GoRouter appRouter(Ref ref) {
 
     refreshListenable: localAuthNotifier,
     redirect: (context, state) {
-      final authState = ref.watch(localAuthProvider).status;
+      final authState = localAuthNotifier.value;
 
-      // print(state.fullPath);
+      // print('Path: ${state.uri.path}');
+      // print('Last Route: ${lastRoute.value}');
+      // print('-----------------------');
 
       if (authState == LocalAuthStatus.notAuthenticated) {
-        // TODO: guardar Last Route
         return '/locked';
       }
 
       if (authState == LocalAuthStatus.authenticated && state.fullPath == '/locked') {
-        // TODO: usar last route
-        return '/home';
+        return lastRoute.value;
       }
 
+      lastRoute.value = state.uri.path;
       return null;
     },
   );
-}
-
-@riverpod
-class LastRoute extends _$LastRoute {
-  @override
-  String build() {
-    return '/home';
-  }
-
-  void changeValue(String newValue) {
-    state = newValue;
-
-    // At this point we can use any type of local storage to save the last
-    // visited route so we can return straight there if the app finishes and
-    // it is opened again.
-  }
 }
