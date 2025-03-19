@@ -1,6 +1,6 @@
-# flutter_secret_notes
+# Secret Notes
 
-This is a notes app based on privacy and security for user's notes. The user will be obligated to authenticate locally every time they want to open or bring the app back from backround.
+This is a notes app which has privacy as its main approach. The user will be obligated to authenticate locally if they want to access their notes.
 
 ## Getting Started
 
@@ -9,10 +9,15 @@ flutter pub get
 dart run build_runner build
 ```
 
-## Features
+## Key Features
 
-- [ ] Biometric Sign in methods (if possible)
-- [ ] Alternative pin code or password Sign In methods
-- [ ] Local storage using sqflite
-- [ ] Searching notes by title
-- [ ] GoRouter safe navigation system
+- Biometric sign in methods (if possible)
+- Picking and attaching images to notes from camera or gallery
+- Searching notes
+- Automatic reset of the Auth State when the app is not in foreground
+
+## Some other important features
+
+- Alternative password sign in method
+- Local storage CRUD using sqflite
+- GoRouter safe route navigation system
